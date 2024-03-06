@@ -12,32 +12,37 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login({ navigation }) {
   const [name, setName] = useState("");
+  const [age, setAge] = useState("");
 
   useEffect(() => {
     getData();
   }, []);
 
-  const getData = () => {
+  const getData = async () => {
     try {
-      AsyncStorage.getItem("UserName").then((value) => {
-        if (value != null) {
-          navigation.navigate("Home");
-        }
-      });
+      const value = await AsyncStorage.getItem('UserData');
+      if (value !== null) {
+        navigation.navigate('Home');
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const textChanged = async () => {
-    if (name.length === 0) {
+  const setData = async () => {
+    if (name.length === 0 || age.length === 0) {
       Alert.alert("Empty credentials submitted");
     } else {
       try {
-        await AsyncStorage.setItem("UserName", name);
+        const user = {
+          Name: name,
+          Age: age,
+        }
+        const jsonValue = JSON.stringify(user)
+        await AsyncStorage.setItem("UserData", jsonValue);
         navigation.navigate("Home");
       } catch (error) {
-        console.log(error);
+        console.log('Error saving data:', error);
       }
     }
   };
@@ -51,7 +56,13 @@ export default function Login({ navigation }) {
         onChangeText={(value) => setName(value)}
         style={styles.input}
       />
-      <TouchableOpacity style={styles.btn} onPress={textChanged}>
+      <TextInput
+        value={age}
+        placeholder="Age"
+        onChangeText={(value) => setAge(value)}
+        style={styles.input}
+      />
+      <TouchableOpacity style={styles.btn} onPress={setData}>
         <Text style={styles.txt}>Login</Text>
       </TouchableOpacity>
     </View>

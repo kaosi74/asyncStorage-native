@@ -16,29 +16,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Home({ navigation }) {
   const [name, setName] = useState("");
+  const [age, setAge] = useState("");
 
   useEffect(() => {
     getData();
   }, []);
 
-  const updateData = async () => {
-    if (name.length === 0) {
-      Alert.alert("Warning!", "Please enter your name");
-    } else {
-      try {
-        await AsyncStorage.setItem("UserName", name);
-        Alert.alert("Success, your data has been updated.");
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   const getData = () => {
     try {
-      AsyncStorage.getItem("UserName").then((value) => {
+      AsyncStorage.getItem("UserData").then((value) => {
         if (value != null) {
-          setName(value);
+          let user = JSON.parse(value);
+          setName(user.Name);
+          setAge(user.Age);
         }
       });
     } catch (error) {
@@ -46,9 +36,22 @@ function Home({ navigation }) {
     }
   };
 
+  const updateData = async () => {
+    if (name.length == 0) {
+      Alert.alert("Warning!", "Please enter your name");
+    } else {
+      try {
+        await AsyncStorage.setItem("UserData", name);
+        Alert.alert("Success, your data has been updated.");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const removeData = async () => {
     try {
-      await AsyncStorage.removeItem("UserName");
+      await AsyncStorage.removeItem("UserData");
       navigation.navigate("Login");
     } catch (error) {
       console.log(error);
@@ -58,12 +61,19 @@ function Home({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Welcome {name} </Text>
+      <Text style={styles.heading}>You are {age} </Text>
       <View>
         <TextInput
           style={styles.input}
           value={name}
           placeholder="Enter your name"
           onChangeText={(value) => setName(value)}
+        />
+        <TextInput
+          style={styles.input}
+          value={age}
+          placeholder="Enter your age"
+          onChangeText={(value) => setAge(value)}
         />
       </View>
       <View style={styles.flx}>
@@ -107,7 +117,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 25,
-    marginVertical: 30,
+    // marginVertical: 30,
   },
   input: {
     width: 300,
@@ -117,6 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     alignSelf: "center",
+    marginBottom: 7,
   },
   flx: {
     display: "flex",
